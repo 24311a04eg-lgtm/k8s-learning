@@ -1,4 +1,4 @@
- Kubernetes: Introduction & Architecture
+# Kubernetes: Introduction & Architecture
 
 ## Why does Kubernetes exist?
 
@@ -15,7 +15,7 @@ Docker containers are great — isolated, portable, reproducible. But at scale, 
 
 ## Core Concept: Desired State
 
-You declare: "I want 3 replicas of scheduler-svc running always."
+You declare: "I want 3 replicas of my app running always."
 
 Kubernetes watches and enforces it:
 - If 1 pod dies → restart it
@@ -122,13 +122,13 @@ The muscle. Runs your containers. Can be many nodes.
 │  │ └────────────┘      └────────────┘         │   │
 │  │                                              │   │
 │  │ ┌──────────┐        ┌──────────┐           │   │
-│  │ │   Pod A  │        │  Pod D   │           │   │
-│  │ │  (app)   │        │  (app)   │           │   │
+│  │ │  Pod A   │        │  Pod C   │           │   │
+│  │ │          │        │          │           │   │
 │  │ └──────────┘        └──────────┘           │   │
 │  │                                              │   │
 │  │ ┌──────────┐        ┌──────────┐           │   │
-│  │ │   Pod B  │        │  Pod E   │           │   │
-│  │ │  (app)   │        │  (db)    │           │   │
+│  │ │  Pod B   │        │  Pod D   │           │   │
+│  │ │          │        │          │           │   │
 │  │ └──────────┘        └──────────┘           │   │
 │  │                                              │   │
 │  └──────────────────────────────────────────────┘   │
@@ -153,7 +153,7 @@ API Server → kubelet on Worker-2
 kubelet → Container Runtime
 └── "Start container from image"
 Pod is running
-└── App working
+└── Container working
 Controller Manager watches forever
 └── Pod dies? Restart it.
 └── Deployment deleted? Clean up.
@@ -206,12 +206,12 @@ Controller Manager = constantly enforces: desired == actual
 - Routes traffic to healthy pods
 
 **ConfigMap**
-- Inject config (DB_HOST, API_BASE_URL)
+- Inject config (env vars, files)
 - Non-sensitive data
 
 **Secret**
 - Same as ConfigMap but for sensitive data
-- DB_PASSWORD, API_KEYS
+- Passwords, API keys
 
 **PersistentVolume (PV)**
 - Physical storage
@@ -223,7 +223,7 @@ Controller Manager = constantly enforces: desired == actual
 - External HTTP routing into cluster
 
 **Namespace**
-- Logical isolation (fifa-prod vs fifa-staging)
+- Logical isolation within cluster
 
 ---
 
@@ -247,34 +247,6 @@ spec:
   replicas: 3  # declare what you want
   # K8s figures out how to make it happen
 ```
-
----
-
-## For Your FIFA Tracker
-
-**Current (ECS):**
-- Manual task management
-- Hard to scale
-- Hard to update without downtime
-
-**With K8s:**
-Master Node (Minikube)
-├── API Server
-├── etcd
-├── Scheduler
-└── Controller Manager
-Worker Node
-├── Pod: matches-svc (Deployment)
-├── Pod: scheduler-svc (Deployment)
-├── Pod: standings-svc (Deployment)
-└── Pod: postgres-db (Deployment with PVC)
-Managed by K8s:
-├── ConfigMap (DB_HOST, API URLs)
-├── Secret (DB_PASSWORD)
-├── Service (networking)
-└── Ingress (external routing)
-
-Everything declared in YAML. K8s enforces it forever.
 
 ---
 
